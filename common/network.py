@@ -34,7 +34,7 @@ class NetWork:
         index = self.hidden_layer_num
         self.layers.append(Affine(self.params['W'+str(index),self.params['b'+str(index)]]))
         ## 出力層の生成
-        self.output_layer.append(SoftmaxAndError())
+        self.output_layer.append(SoftmaxWithCrossEntropyError())
 
     # 重み初期化メソッド  *後で実装
     def initWeight(self):

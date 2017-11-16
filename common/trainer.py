@@ -11,8 +11,8 @@ from Optimizer.sgd import *
 # 学習用クラス
 class Trainer:
     def __init__(self, network, optimizer, x_train, t_train, x_test, t_test):
-        self.network = network      # object
-        self.optimizer = optimizer  # object
+        self.network = network      # Networkオブジェクト
+        self.optimizer = optimizer  # Optimizerオブジェクト
         self.x_train = x_train      # 訓練データ
         self.t_train = t_train      # 教師データ
         self.x_test = x_test        # テスト入力データ

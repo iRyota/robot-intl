@@ -32,6 +32,8 @@ def mse(y,t):
     return 0.5 * np.sum(ret)
 
 # 交差エントロピー誤差 cross entropy error
+# t: 正解ラベルのnumpy配列 (N,)
+# y: 出力 numpy配列 (N,n)
 def cee(y,t):
     batch_size = y.shape[0]
     ret = np.log(y[np.arange(batch_size),t])
