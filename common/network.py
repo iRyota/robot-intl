@@ -9,11 +9,12 @@ from layers import *
 
 
 class NetWork:
-    def __init__(self,input_size,output_size,hidden_size_list,enable_weight_decay,weight_decay_lambda=None):
+    def __init__(self,input_size,output_size,hidden_layer_size_list,activator,enable_weight_decay,weight_decay_lambda=None):
         self.input_size = input_size #入力ノード数
         self.output_size = output_layer #出力ノード数
-        self.hidden_size_list = hidden_size_list #隠れ層のノード数
+        self.hidden_layer_size_list = hidden_layer_size_list #隠れ層のノード数のリスト
         self.hidden_layer_num = len(hidden_size_list) #隠れ層の数
+        self.activator = activator #活性化関数
         self.enable_weight_decay = enable_weight_decay #荷重減衰を利用するか (bool)
         self.weight_decay_lambda = weight_decay_lambda #荷重減衰係数
         self.layers = OrderedDict() #出力層以外
@@ -28,9 +29,9 @@ class NetWork:
     def initLayers(self):
         for index in range(self.hidden_layer_num):
             self.layers['Affine{}'.format(index)] = Affine(self.params['W{}'.format(index)],self.params['b{}'.format(index)])
-            if activation_method == 'ReLU':
+            if self.activator == 'ReLU':
                 self.layers['Activator{}'.format(index)] = ReLU()
-            elif activation_method == 'sigmoid':
+            elif self.activator == 'sigmoid':
                 self.layers['Activator{}'.format(index)] = Sigmoid()
         index = self.hidden_layer_num
         self.layers['Affine{}'.format(index)] = Affine(self.params['W{}'.format(index)],self.params['b{}'.format(index)])
@@ -39,9 +40,15 @@ class NetWork:
 
     # 重み初期化メソッド  *後で実装
     def initWeight(self):
-        for index in range(self.hidden_layer_num):
-            self.params['W{}'.format(index)] = np.random.randn() # 後で実装
-            self.params['b{}'.format(index)] = np.zeros() # 後で実装
+        # 各層のノードの数の情報が必要
+        layer_size_list = [self.input_size] + self.hidden_layer_size_list + [self.output_size]
+
+        for index in range(len(layer_size_list)-1):
+            if self.activator=='ReLU':
+                self.self.params['W{}'.format(index)] = np.random.randn(layer_size_list[index],layer_size_list[index+1]) / np.sqrt(layer_size_list[index]/2.0) # Heの初期値
+            elif self.activator=='sigmoid':
+                self.self.params['W{}'.format(index)] = np.random.randn(layer_size_list[index],layer_size_list[index+1]) / np.sqrt(layer_size_list[index]) # Xavierの初期値
+            self.params['b{}'.format(index)] = np.zeros(layer_size_list[index+1])
 
     # フォワード処理 (出力層の値を出す)
     def predict(self, x):
