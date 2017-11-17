@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys, os
+sys.path.append(os.pardir)
 import numpy as np
 
 def grad(f,x):
