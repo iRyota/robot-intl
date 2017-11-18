@@ -22,6 +22,11 @@ def grad_sigmoid(x):
     return (1.0 - sigmoid(x)) * sigmoid(x)
 
 def softmax(x):
+    if x.ndim==2:
+        x = x.T
+        x = x-np.max(x,axis=0)
+        ret = np.exp(x)/np.sum(np.exp(x),axis=0)
+        return ret.T
     ret = np.exp(x-np.max(x))
     return ret / np.sum(ret)
 
@@ -37,6 +42,7 @@ def mse(y,t):
 # t: 正解ラベルのnumpy配列 (N,)
 # y: 出力 numpy配列 (N,n)
 def cee(y,t):
+    delta = 1e-7
     batch_size = y.shape[0]
-    ret = np.log(y[np.arange(batch_size),t])
+    ret = np.log(y[np.arange(batch_size),t]+delta)
     return -np.sum(ret)/batch_size

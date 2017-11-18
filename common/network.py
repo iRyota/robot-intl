@@ -4,16 +4,16 @@
 import sys, os
 sys.path.append(os.pardir)
 import numpy as np
-from collection import OrderedDict
-from layers import *
+from collections import OrderedDict
+from common.layers import *
 
 
 class NetWork:
     def __init__(self,input_size,output_size,hidden_layer_size_list,activator,enable_weight_decay,weight_decay_lambda=None):
         self.input_size = input_size #入力ノード数
-        self.output_size = output_layer #出力ノード数
+        self.output_size = output_size #出力ノード数
         self.hidden_layer_size_list = hidden_layer_size_list #隠れ層のノード数のリスト
-        self.hidden_layer_num = len(hidden_size_list) #隠れ層の数
+        self.hidden_layer_num = len(hidden_layer_size_list) #隠れ層の数
         self.activator = activator #活性化関数
         self.enable_weight_decay = enable_weight_decay #荷重減衰を利用するか (bool)
         self.weight_decay_lambda = weight_decay_lambda #荷重減衰係数
@@ -21,7 +21,7 @@ class NetWork:
         self.output_layer = None #出力層
         # 重みを初期化
         self.params = {}
-        self.initWeight(self.option)
+        self.initWeight()
         # 層を初期化
         self.initLayers()
 
@@ -38,16 +38,21 @@ class NetWork:
         ## 出力層の生成
         self.output_layer = SoftmaxWithCrossEntropyError()
 
-    # 重み初期化メソッド  *後で実装
+    def updateLayers(self):
+        for index in range(self.hidden_layer_num+1):
+            self.layers['Affine{}'.format(index)].W = self.params['W{}'.format(index)]
+            self.layers['Affine{}'.format(index)].b = self.params['b{}'.format(index)]
+
+    # 重み初期化メソッド
     def initWeight(self):
         # 各層のノードの数の情報が必要
         layer_size_list = [self.input_size] + self.hidden_layer_size_list + [self.output_size]
 
         for index in range(len(layer_size_list)-1):
             if self.activator=='ReLU':
-                self.self.params['W{}'.format(index)] = np.random.randn(layer_size_list[index],layer_size_list[index+1]) / np.sqrt(layer_size_list[index]/2.0) # Heの初期値
+                self.params['W{}'.format(index)] = np.random.randn(layer_size_list[index],layer_size_list[index+1]) / np.sqrt(layer_size_list[index]/2.0) # Heの初期値
             elif self.activator=='sigmoid':
-                self.self.params['W{}'.format(index)] = np.random.randn(layer_size_list[index],layer_size_list[index+1]) / np.sqrt(layer_size_list[index]) # Xavierの初期値
+                self.params['W{}'.format(index)] = np.random.randn(layer_size_list[index],layer_size_list[index+1]) / np.sqrt(layer_size_list[index]) # Xavierの初期値
             self.params['b{}'.format(index)] = np.zeros(layer_size_list[index+1])
 
     # フォワード処理 (出力層の値を出す)
@@ -81,7 +86,7 @@ class NetWork:
         backward_input = self.output_layer.backward(backward_input)
 
         layers = list(self.layers.values())
-        layers = layers.reverse() #self.layersの順番を逆転させたリストを作成
+        layers.reverse() #self.layersの順番を逆転させたリストを作成
         for layer in layers:
             backward_input = layer.backward(backward_input)
 

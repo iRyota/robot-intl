@@ -4,20 +4,20 @@
 import sys, os
 sys.path.append(os.pardir)
 import numpy as np
-from functions import *
+from common.functions import *
 
 class ReLU:
     def __init__(self):
         self.filter = None # 0以上だったらTrue, 0未満だったらFalseが入っているフィルタ
 
     def forward(self, x):
-        self.filter = (x < 0)
+        self.filter = (x <= 0)
         forward_output = x.copy()
         forward_output[self.filter] = 0
         return forward_output
 
     def backward(self, backward_input):
-        back[self.filter] = 0
+        backward_input[self.filter] = 0
         backward_output = backward_input
         return backward_output
 
@@ -47,7 +47,7 @@ class Affine:
 
     def forward(self,x):
         self.forward_input_shape = x.shape
-        x = x.reshape(x.shape[0],1)
+        x = x.reshape(x.shape[0],-1)
         self.forward_input = x
 
         forward_output = np.dot(self.forward_input,self.W) + self.b
@@ -57,6 +57,8 @@ class Affine:
         backward_output = np.dot(backward_input,self.W.T)
         self.dW = np.dot(self.forward_input.T,backward_input)
         self.db = np.sum(backward_input,axis=0)
+
+        backward_output = backward_output.reshape(*self.forward_input_shape)
         return backward_output
 
 class SoftmaxWithCrossEntropyError:
@@ -73,8 +75,8 @@ class SoftmaxWithCrossEntropyError:
         return self.error
 
     def backward(self,backward_input=1):
-        batch_size = self.t.shape[0]
-        backward_output = self.y.copy()
+        batch_size = self.teacher.shape[0]
+        backward_output = self.forward_output.copy()
         backward_output[np.arange(batch_size),self.teacher] -= 1
         backward_output = backward_output/batch_size
         return backward_output

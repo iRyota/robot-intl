@@ -48,13 +48,13 @@ class Dataset:
             pickle.dump(self.dataset,f,-1)
         print("Done")
 
-    def loadDataset():
+    def loadDataset(self):
         with open(self.save_as, 'rb') as f:
             self.dataset = pickle.load(f)
 
         # 正規化
         for key in ('train_image', 'test_image'):
-            self.dataset[key] = dataset[key].astype(np.float32)
+            self.dataset[key] = self.dataset[key].astype(np.float32)
             self.dataset[key] /= 255.0
 
         return (self.dataset['train_image'],self.dataset['train_label'],self.dataset['test_image'],self.dataset['test_label'])
