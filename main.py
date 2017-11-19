@@ -21,7 +21,12 @@ mnist = Dataset(dataset_dir=dataset_directory,save_as='mnist',image_size=784,tra
 if not os.path.exists(mnist.save_as):
     mnist.saveDataset()
 
-x_train, t_train, x_test, t_test = mnist.loadDataset()
+mnist.loadDataset()
+mnist.putNoise(0.25)
+x_train = mnist.dataset['train_image']
+t_train = mnist.dataset['train_label']
+x_test = mnist.dataset['test_image']
+t_test = mnist.dataset['test_label']
 
 net = NetWork(input_size=784,output_size=10,hidden_layer_size_list=[100,100],activator='sigmoid',enable_weight_decay=False,weight_decay_lambda=None)
 opt = SGD(learning_rate=0.01)

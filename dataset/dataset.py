@@ -57,4 +57,8 @@ class Dataset:
             self.dataset[key] = self.dataset[key].astype(np.float32)
             self.dataset[key] /= 255.0
 
-        return (self.dataset['train_image'],self.dataset['train_label'],self.dataset['test_image'],self.dataset['test_label'])
+    # 各画素に(noise_ratio)%の確率でノイズがかかる
+    def putNoise(self,noise_ratio):
+        rand = np.random.rand(*self.dataset['train_image'].shape)
+        mask = np.random.rand(*self.dataset['train_image'].shape) > noise_ratio
+        self.dataset['train_image'] = self.dataset['train_image'] * mask + 1*np.logical_not(mask)
